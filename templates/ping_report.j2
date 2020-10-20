@@ -1,0 +1,8 @@
+{% if ping_results %}
+### Ping Results for VM: {{ inventory_hostname }}
+
+{% for res in ping_results.results %}
+- Target **{{ res.item }}**: `{{ res.stdout | regex_search("\w+ packets transmitted.+loss") }}`
+{% endfor %}
+
+{% endif %}

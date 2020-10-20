@@ -1,0 +1,28 @@
+## ACI Faults
+
+### System Faults Summary
+
+Total number of fault categories: **{{ faults_system.totalCount }}**
+
+{% for fault in faults_system.imdata %}
+- Severity-**{{ fault.faultSummary.attributes.severity }}**/Type-**{{ fault.faultSummary.attributes.type }}**/Code-**{{ fault.faultSummary.attributes.code }}**/Domain-**{{ fault.faultSummary.attributes.domain }}**
+    + Cause: `{{ fault.faultSummary.attributes.cause }}`
+    + Count: **{{ fault.faultSummary.attributes.count }}**
+    + Description: {{ fault.faultSummary.attributes.descr }}
+{% endfor %}
+
+### Tenant {{ customer_name }} Faults
+
+{% for fault in faults_tenant.imdata %}
+{% if fault.get("faultDelegate") %}
+- Severity-**{{ fault.faultDelegate.attributes.severity }}**/Type-**{{ fault.faultDelegate.attributes.type }}**/Code-**{{ fault.faultDelegate.attributes.code }}**/Domain-**{{ fault.faultDelegate.attributes.domain }}**
+    + Cause: `{{ fault.faultDelegate.attributes.cause }}`
+    + Affected Object: `{{ fault.faultDelegate.attributes.affected }}`
+    + Description: {{ fault.faultDelegate.attributes.descr }}
+{% endif %}
+{% if fault.get("faultInst") %}
+- Severity-**{{ fault.faultInst.attributes.severity }}**/Type-**{{ fault.faultInst.attributes.type }}**/Code-**{{ fault.faultInst.attributes.code }}**/Domain-**{{ fault.faultInst.attributes.domain }}**
+    + Cause: `{{ fault.faultInst.attributes.cause }}`
+    + Description: {{ fault.faultInst.attributes.descr }}
+{% endif %}
+{% endfor %}

@@ -1,0 +1,54 @@
+---
+
+- name: QUERY FABRIC AND BUILD FAULTS REPORT
+  hosts: apic
+
+  tasks:
+
+    - name: Break VMM for Users_EPG
+      aci_epg_to_domain:
+        host: "{{ ansible_host }}"
+        port: "{{ ansible_port }}"
+        user: "{{ ansible_user }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+
+        tenant: "SNV_Retail"
+        ap: "UserServices_APP"
+        epg: "Users_EPG"
+        domain: "vCenter_VMM"
+        domain_type: "vmm"
+        vm_provider: "vmware"
+        state: absent
+      delegate_to: localhost
+
+    - name: Add wrong VMM to Users_EPG
+      aci_epg_to_domain:
+        host: "{{ ansible_host }}"
+        port: "{{ ansible_port }}"
+        user: "{{ ansible_user }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+
+        tenant: "SNV_Retail"
+        ap: "UserServices_APP"
+        epg: "Users_EPG"
+        domain: "vCenter_VMM"
+        domain_type: "vmm"
+        vm_provider: "openstack"
+        state: present
+      delegate_to: localhost
+
+    - name: Delete Users_BD
+      aci_bd:
+        host: "{{ ansible_host }}"
+        port: "{{ ansible_port }}"
+        user: "{{ ansible_user }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+
+        tenant: "SNV_Retail"
+        vrf: "UserServices_VRF"
+        bd: "Users_BD"
+        state: absent
+      delegate_to: localhost

@@ -1,0 +1,27 @@
+[all:vars]
+customer_name=SNV_Retail
+
+
+# The ACI Controllers
+[aci]
+apic        ansible_host=apic
+
+[aci:vars]
+ansible_port=443
+# Login credentials
+ansible_user=USERNAME_FROM_JOBAIDS
+ansible_password=PASSWORD_FROM_JOBAIDS
+# Set to true for production setups that use trusted certificates!
+validate_certs=false
+
+
+# The Server VMs connected to the Fabric
+[servers]
+web         ansible_host=IP_FROM_JOBAIDS
+app         ansible_host=IP_FROM_JOBAIDS
+db          ansible_host=IP_FROM_JOBAIDS
+transact    ansible_host=IP_FROM_JOBAIDS
+
+[servers:vars]
+ansible_user=USERNAME_FROM_JOBAIDS
+ansible_password=PASSWORD_FROM_JOBAIDS

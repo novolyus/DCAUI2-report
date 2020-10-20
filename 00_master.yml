@@ -1,0 +1,52 @@
+---
+
+- name: ENVIRONMENT SETUP AND VALIDATION
+  hosts: apic
+
+  tasks:
+
+    # All of these should be defined:
+    # ansible_host, ansible_port, ansible_user, ansible_password, validate_certs
+    # customer_name
+    - name: Test that connection details are defined
+      assert:
+        that:
+          - "ansible_host is defined"
+          - "ansible_port is defined"
+          - "ansible_user is defined"
+          - "ansible_password is defined"
+          - "validate_certs is defined"
+          - "customer_name is defined"
+        fail_msg: "Please ensure that these variables exist: ansible_host,
+          ansible_port, ansible_user, ansible_password, validate_certs
+          and customer_name!"
+        quiet: true
+
+    # Create the reports/fragments folders if they don't already exist
+    - name: Ensure the reports/fragments folder exists
+      file:
+        path: "reports/fragments"
+        state: "directory"
+      delegate_to: localhost
+
+
+# All playbooks imported here are designed to also execute independently.
+- name: ACI HEALTH REPORT
+  import_playbook: 01_health_report.yml
+
+- name: HOST CONNECTIVITY REPORT
+  import_playbook: 02_connectivity_report.yml
+
+- name: ACI FAULTS REPORT
+  import_playbook: 03_faults_report.yml
+
+# Put together all of the reports in one file
+- name: CONSOLIDATE REPORTS INTO FINAL DOCUMENT
+  hosts: localhost
+  tags: assemble
+
+  tasks:
+    - name: Assemble the fragments into one file
+      assemble:
+        src: "reports/fragments"
+        dest: "reports/infra_report.md"

@@ -1,0 +1,69 @@
+---
+
+- name: QUERY FABRIC AND BUILD HEALTH REPORT
+  hosts: apic
+
+  tasks:
+
+    - name: Get System Health
+      aci_rest:
+        host: "{{ ansible_host }}"
+        port: "{{ ansible_port }}"
+        user: "{{ ansible_user }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+
+        path: "/api/mo/topology/health.json"
+        method: get
+      delegate_to: localhost
+      register: health_system
+
+    - name: Print System Health Response Data
+      debug:
+        var: health_system
+        verbosity: 1
+
+
+    - name: Get Topology Health
+      aci_rest:
+        host: "{{ ansible_host }}"
+        port: "{{ ansible_port }}"
+        user: "{{ ansible_user }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+
+        path: "/api/node/class/topSystem.json?rsp-subtree-include=health,required"
+        method: get
+      delegate_to: localhost
+      register: health_topology
+
+    - name: Print Topology Health Response Data
+      debug:
+        var: health_topology
+        verbosity: 1
+
+
+    - name: Get Tenant Health
+      aci_rest:
+        host: "{{ ansible_host }}"
+        port: "{{ ansible_port }}"
+        user: "{{ ansible_user }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+
+        path: "/api/mo/uni/tn-{{ customer_name }}.json?rsp-subtree-include=health"
+        method: get
+      delegate_to: localhost
+      register: health_tenant
+
+    - name: Print Tenant Health Response Data
+      debug:
+        var: health_tenant
+        verbosity: 1
+
+
+    - name: Save Health Markdown Report
+      template:
+        src: "health_report.j2"
+        dest: "reports/fragments/01_health_report.md"
+      delegate_to: localhost

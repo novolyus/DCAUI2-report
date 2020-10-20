@@ -1,0 +1,51 @@
+---
+
+- name: PERFORM CONNECTIVITY CHECKS
+  hosts: servers
+
+  # This matrix is provided to look up which destinations
+  # should be pinged from which server.
+  vars:
+    ping_matrix:
+      web:
+        - 10.0.3.1
+        - 10.0.4.1
+      app:
+        - 10.0.3.1
+        - 10.0.4.1
+      db:
+        - 10.0.1.1
+        - 10.0.2.1
+      transact:
+        - 10.0.1.1
+        - 10.0.2.1
+
+  tasks:
+
+    - name: Run Ping Command
+      command: "ping -c 2 -q {{ item }}"
+      ignore_errors: true
+      loop: "{{ ping_matrix[inventory_hostname] }}"
+      register: ping_results
+
+    - name: Print Ping Command Output Data
+      debug:
+        var: ping_results
+        verbosity: 1
+
+    - name: Save Per-Host Connectivity Report
+      template:
+        src: "ping_report.j2"
+        dest: "reports/fragments/02_{{ inventory_hostname }}_ping_report.md"
+      delegate_to: localhost
+
+
+- name: BUILD SERVER CONNECTIVITY REPORT
+  hosts: localhost
+
+  tasks:
+
+    - name: Save Faults Markdown Report
+      template:
+        src: "connectivity_report.j2"
+        dest: "reports/fragments/020_connectivity_report.md"
